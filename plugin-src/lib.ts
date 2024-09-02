@@ -31,27 +31,26 @@ export const arrayToNestedObject = (args: CollectionVariableValue) => {
 		})
 
 		variable.values.map((v) => {
-			if (typeof v.value === "object" && variable.type === "COLOR") {
-				if (variable.modes.length === 1) {
-					keys.map((key) => {
-						if (result[key]) {
-							current[key] = _rgbaToHex(v.value)
-						} else {
-						}
-					})
-				} else {
-					current[v.modeName] = _rgbaToHex(v.value)
-				}
+			const isColor = typeof v.value === "object" && variable.type === "COLOR"
+
+			if (variable.modes.length === 1) {
+				const propertyKeys = keys.map((key) => key)
+				const lastKey = propertyKeys.pop()
+				const keyCount = keys.length
+				let _current = result
+
+				keys.map((key, index) => {
+					if (keyCount === 1)
+						result[key] = isColor ? _rgbaToHex(v.value) : v.value
+
+					if (index === keyCount - 1 && lastKey) {
+						_current[lastKey] = isColor ? _rgbaToHex(v.value) : v.value
+					} else {
+						_current = _current[key]
+					}
+				})
 			} else {
-				if (variable.modes.length === 1) {
-					keys.map((key) => {
-						if (result[key]) {
-							current[key] = v.value
-						}
-					})
-				} else {
-					current[v.modeName] = v.value
-				}
+				current[v.modeName] = isColor ? _rgbaToHex(v.value) : v.value
 			}
 		})
 	})
