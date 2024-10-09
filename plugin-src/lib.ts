@@ -17,7 +17,7 @@ const _rgbaToHex = (args: RGB) => {
 	return `#${red}${green}${blue}`
 }
 
-export const arrayToNestedObject = (args: CollectionVariableValue) => {
+export const arrayToNestedObject = (args: CollectionVariableValue, unit: string) => {
 	const result: any = {}
 
 	args.map((variable) => {
@@ -41,16 +41,16 @@ export const arrayToNestedObject = (args: CollectionVariableValue) => {
 
 				keys.map((key, index) => {
 					if (keyCount === 1)
-						result[key] = isColor ? _rgbaToHex(v.value) : v.value
+						result[key] = isColor ? _rgbaToHex(v.value) : `${v.value}${unit}`
 
 					if (index === keyCount - 1 && lastKey) {
-						_current[lastKey] = isColor ? _rgbaToHex(v.value) : v.value
+						_current[lastKey] = isColor ? _rgbaToHex(v.value) : `${v.value}${unit}`
 					} else {
 						_current = _current[key]
 					}
 				})
 			} else {
-				current[v.modeName] = isColor ? _rgbaToHex(v.value) : v.value
+				current[v.modeName] = isColor ? _rgbaToHex(v.value) : `${v.value}${unit}`
 			}
 		})
 	})

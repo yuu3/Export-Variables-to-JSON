@@ -114,7 +114,7 @@ figma.on("run", async () => {
 	})
 })
 
-figma.ui.onmessage = async () => {
+figma.ui.onmessage = async (props) => {
 	const content: {
 		[key: string]: any
 	} = {}
@@ -129,14 +129,18 @@ figma.ui.onmessage = async () => {
 		)
 
 		collectionVariablesByMode.push({
+			key: collection.key,
 			collectionName: collection.name,
 			variables: await _getVariablesByMode(collection.modes, modeIds, variables)
 		})
 	}
 
 	collectionVariablesByMode.map((collection) => {
+		const unitCollection = props.collections.find((c: any) => c.key === collection.key)
+
 		content[collection.collectionName] = arrayToNestedObject(
-			collection.variables
+			collection.variables,
+			unitCollection ? unitCollection.unit : ""
 		)
 	})
 
