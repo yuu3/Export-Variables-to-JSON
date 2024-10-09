@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { ChevronDown } from "lucide-react"
 import "./App.css"
 
 function App() {
@@ -61,14 +62,28 @@ function App() {
 			<ul className="collections">
 				{collections.map((collection) => (
 					<li key={collection.key}>
-						{collection.name}
-						<select name={`${collection.key}-unit`} onChange={event => onChangeUnit(event.target.value, collection.key)}>
-							<option value=""></option>
-							<option value="px">px</option>
-							<option value="per">percent</option>
-							<option value="rem">rem</option>
-							<option value="em">em</option>
-						</select>
+						<p className="collectionName">{collection.name}</p>
+						<div style={{ position: "relative" }}>
+							<select
+								name={`${collection.key}-unit`}
+								onChange={event => onChangeUnit(event.target.value, collection.key)}
+							>
+								<option value=""></option>
+								<option value="px">px</option>
+								<option value="per">percent</option>
+								<option value="rem">rem</option>
+								<option value="em">em</option>
+							</select>
+							<ChevronDown
+								size={14}
+								style={{
+									position: "absolute",
+									right: "4px",
+									top: "6px",
+									color: "#374151"
+								}}
+							/>
+						</div>
 					</li>
 				))}
 			</ul>

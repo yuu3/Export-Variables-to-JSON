@@ -9,6 +9,11 @@ ul {
   row-gap: 8px;
 }
 
+li {
+  display: flex;
+  justify-content: space-between;
+}
+
 .main {
   padding: 16px;
   display: grid;
@@ -21,8 +26,23 @@ ul {
 
 button {
   width: 100%;
-  padding: 8px 16px;
+  padding: 12px 16px;
   border: none;
-  background-color: #f0f0f0;
+  background-color: #0ea5e9;
+  color: #fff;
+  border-radius: 4px;
   cursor: pointer;
+}
+
+select {
+  appearance: none;
+  border: 1px solid #D1D1D1;
+  padding: 4px;
+  border-radius: 4px;
+  color: #374151;
+}
+
+.collectionName {
+  font-size: 12px;
+  font-weight: 600;
 }
