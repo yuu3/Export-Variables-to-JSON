@@ -43,6 +43,20 @@ select {
 }
 
 .collectionName {
+  width: 100%;
+  max-width: 200px;
+  display: block;
   font-size: 12px;
   font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 600;
+  color: #555;
 }

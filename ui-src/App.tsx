@@ -10,7 +10,7 @@ function App() {
 			if (event.data.pluginMessage.type === "getVariableCollections") {
 				const _collections = event.data.pluginMessage.data as any[]
 
-				setCollections(_collections.map(v => ({
+				setCollections(_collections.filter(v => v.name[0] !== "_").map(v => ({
 					...v,
 					unit: ""
 				})))
@@ -59,8 +59,12 @@ function App() {
 
 	return (
 		<main className="main">
+			<div className="list-header">
+				<p>Collection Name</p>
+				<p>Unit</p>
+			</div>
 			<ul className="collections">
-				{collections.map((collection) => (
+				{collections.sort((v, p) => v.name.toUpperCase() > p.name.toUpperCase() ? 1 : -1).map((collection) => (
 					<li key={collection.key}>
 						<p className="collectionName">{collection.name}</p>
 						<div style={{ position: "relative" }}>
@@ -70,7 +74,7 @@ function App() {
 							>
 								<option value=""></option>
 								<option value="px">px</option>
-								<option value="per">percent</option>
+								<option value="%">percent</option>
 								<option value="rem">rem</option>
 								<option value="em">em</option>
 							</select>
