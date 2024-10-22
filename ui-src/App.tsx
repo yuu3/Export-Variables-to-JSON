@@ -10,10 +10,7 @@ function App() {
 			if (event.data.pluginMessage.type === "getVariableCollections") {
 				const _collections = event.data.pluginMessage.data as any[]
 
-				setCollections(_collections.filter(v => v.name[0] !== "_").map(v => ({
-					...v,
-					unit: ""
-				})))
+				setCollections(_collections)
 			}
 
 			if (event.data.pluginMessage.type === "downloadJSON") {
@@ -71,10 +68,13 @@ function App() {
 							<select
 								name={`${collection.key}-unit`}
 								onChange={event => onChangeUnit(event.target.value, collection.key)}
+								style={{
+									width: "64px"
+								}}
 							>
 								<option value=""></option>
 								<option value="px">px</option>
-								<option value="%">percent</option>
+								<option value="%">%</option>
 								<option value="rem">rem</option>
 								<option value="em">em</option>
 							</select>
