@@ -3,21 +3,10 @@ import type { Mode } from "./types"
 
 const VARIABLE_ALIAS = "VARIABLE_ALIAS"
 
-const getCollections = async () => {
-	const variablesCollections =
-		await figma.variables.getLocalVariableCollections()
-
-	return variablesCollections
-}
-
-const _getCollectionVariables = async () => {
-	return await figma.variables.getLocalVariables()
-}
-
-const _findAiliasVariables = async (mode: Mode[], variable: VariableAlias) => {
+const _findAiliasVariables = async (mode: Mode, collectionModes: Mode[], variable: VariableAlias) => {
 	let variableId = variable.id
+	let modeCount = 0
 	let value: any = ""
-	let modeName = ""
 	let next = false
 
 	do {
@@ -25,70 +14,56 @@ const _findAiliasVariables = async (mode: Mode[], variable: VariableAlias) => {
 
 		if (!_variable) break
 
-		const variableModeId = mode.find((m) => _variable.valuesByMode[m.modeId])
+		const variableMode = collectionModes.find((m) => !!_variable.valuesByMode[m.modeId])
 
-		if (!variableModeId) break
+		if (!variableMode) break
 
-		const variableMode: any = _variable.valuesByMode[variableModeId.modeId]
+		const variable: any = _variable.valuesByMode[variableMode.modeId]
 
-		if (variableMode.id) variableId = variableMode.id
+		if (variable.id) variableId = variable.id
 
-		if (variableMode.type !== VARIABLE_ALIAS) {
+		if (variable.type !== VARIABLE_ALIAS) {
 			next = false
-		} else if (variableMode.r) {
+		} else if (variable.r) {
 			next = false
 		} else {
 			next = true
 		}
 
-		if (!next) {
-			value = variableMode
-			modeName = variableModeId.name
-		}
+		if (!next) value = variable
 	} while (next)
 
-	return {
-		value,
-		modeName
-	}
+	return value
 }
 
 // モード毎の変数を取得
 const _getVariablesByMode = async (
+	mode: Mode,
 	collectionModes: Mode[],
-	allModes: Mode[],
 	variables: Variable[]
 ) => {
 	const data = []
 
 	for (const variable of variables) {
-		const values = []
+		let value: string | number | boolean | RGB | RGBA = ""
+		const _variable = variable.valuesByMode[mode.modeId]
 
-		for (const mode of collectionModes) {
-			const _variable = variable.valuesByMode[mode.modeId]
+		if (typeof _variable === "object" && "type" in _variable) {
+			if (_variable.type === VARIABLE_ALIAS) {
+				const ailiasVariable = await _findAiliasVariables(mode, collectionModes, _variable)
 
-			if (typeof _variable === "object" && "type" in _variable) {
-				if (_variable.type === VARIABLE_ALIAS) {
-					const ailiasVariable = await _findAiliasVariables(allModes, _variable)
-					values.push({
-						modeName: ailiasVariable.modeName,
-						value: ailiasVariable.value
-					})
-				}
-			} else {
-				values.push({
-					modeName: mode.name,
-					value: _variable
-				})
+				value = ailiasVariable
 			}
+		} else {
+			value = _variable
 		}
 
 		data.push({
 			id: variable.id,
 			name: variable.name,
 			type: variable.resolvedType,
-			values,
-			modes: collectionModes
+			value,
+			mode
 		})
 	}
 
@@ -118,21 +93,30 @@ figma.ui.onmessage = async (props) => {
 	const content: {
 		[key: string]: any
 	} = {}
-	const collections = await getCollections()
-	const collectionVariables = await _getCollectionVariables()
+	const collections = await figma.variables.getLocalVariableCollections()
+	const collectionVariables = await figma.variables.getLocalVariables()
+	const collectionModes = collections.map((collection) => collection.modes).flat()
 	const collectionVariablesByMode = []
 
 	for (const collection of collections) {
-		const modeIds = collections.flatMap((collection) => collection.modes)
 		const variables = collectionVariables.filter(
 			(v) => v.variableCollectionId === collection.id
 		)
 
-		collectionVariablesByMode.push({
-			key: collection.key,
-			collectionName: collection.name,
-			variables: await _getVariablesByMode(collection.modes, modeIds, variables)
-		})
+		for (const mode of collection.modes) {
+			const collectionName = () => {
+				const modeCount = collection.modes.length
+
+				return modeCount > 1 ? `${collection.name}/${mode.name}` : collection.name
+			}
+
+			collectionVariablesByMode.push({
+				key: collection.key,
+				collectionName: collectionName(),
+				variables: await _getVariablesByMode(mode, collectionModes, variables),
+				mode
+			})
+		}
 	}
 
 	collectionVariablesByMode.map((collection) => {

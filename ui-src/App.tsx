@@ -26,7 +26,7 @@ function App() {
 					"downLoadLink"
 				) as HTMLAnchorElement
 
-				downLoadLink.download = "export_variables.json"
+				downLoadLink.download = "tokens.json"
 				downLoadLink.href = url
 				downLoadLink.dataset.downloadurl = [
 					"text/plain",

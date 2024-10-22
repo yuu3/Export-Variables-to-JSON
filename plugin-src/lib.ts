@@ -30,32 +30,26 @@ export const arrayToNestedObject = (args: CollectionVariableValue, unit: string)
 			current = current[key]
 		})
 
-		variable.values.map((v) => {
-			const isColor = typeof v.value === "object" && variable.type === "COLOR"
-			const _value = () => {
-				if (typeof v.value === "string") return v.value
+		const isColor = typeof variable.value === "object" && variable.type === "COLOR"
+		const _value = () => {
+			if (typeof variable.value === "string") return variable.value
 
-				return `${v.value}${unit}`
-			}
+			return `${variable.value}${unit}`
+		}
 
-			if (variable.modes.length === 1) {
-				const propertyKeys = keys.map((key) => key)
-				const lastKey = propertyKeys.pop()
-				const keyCount = keys.length
-				let _current = result
+		const propertyKeys = keys.map((key) => key)
+		const lastKey = propertyKeys.pop()
+		const keyCount = keys.length
+		let _current = result
 
-				keys.map((key, index) => {
-					if (keyCount === 1)
-						result[key] = isColor ? _rgbaToHex(v.value) : _value()
+		keys.map((key, index) => {
+			if (keyCount === 1)
+				result[key] = isColor ? _rgbaToHex(variable.value as RGBA) : _value()
 
-					if (index === keyCount - 1 && lastKey) {
-						_current[lastKey] = isColor ? _rgbaToHex(v.value) :  _value()
-					} else {
-						_current = _current[key]
-					}
-				})
+			if (index === keyCount - 1 && lastKey) {
+				_current[lastKey] = isColor ? _rgbaToHex(variable.value as RGBA) :  _value()
 			} else {
-				current[v.modeName] = isColor ? _rgbaToHex(v.value) :  _value()
+				_current = _current[key]
 			}
 		})
 	})

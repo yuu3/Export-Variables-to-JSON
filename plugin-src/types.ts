@@ -7,11 +7,8 @@ export type CollectionVariableValue = {
 	id: string
 	name: string
 	type: VariableResolvedDataType
-	values: {
-		modeName: string
-		value: any
-	}[]
-	modes: Mode[]
+	value: string | number | boolean | RGB | RGBA
+	mode: Mode
 }[]
 
 export type CollectionVariable = {
