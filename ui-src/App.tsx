@@ -10,7 +10,7 @@ function App() {
 			if (event.data.pluginMessage.type === "getVariableCollections") {
 				const _collections = event.data.pluginMessage.data as any[]
 
-				setCollections(_collections)
+				// setCollections(_collections)
 			}
 
 			if (event.data.pluginMessage.type === "downloadJSON") {
@@ -35,9 +35,7 @@ function App() {
 		}
 	}, [])
 
-	const onDownload = () => {
-		parent.postMessage({ pluginMessage: { type: "exportVariables", collections } }, "*")
-	}
+	const onDownload = () => parent.postMessage({ pluginMessage: { type: "exportVariables", collections } }, "*")
 
 	const onChangeUnit = (value: string, collectionId: string) => {
 		const _collection = collections.find(c => c.key === collectionId)
@@ -56,11 +54,21 @@ function App() {
 
 	return (
 		<main className="main">
-			<div className="list-header">
+			<div
+			  className="list-header"
+				style={{
+					display: collections.length === 0 ? "none" : "flex"
+				}}
+			>
 				<p>Collection Name</p>
 				<p>Unit</p>
 			</div>
-			<ul className="collections">
+			<ul
+			  className="collections"
+				style={{
+					display: collections.length === 0 ? "none" : "grid"
+				}}
+			>
 				{collections.sort((v, p) => v.name.toUpperCase() > p.name.toUpperCase() ? 1 : -1).map((collection) => (
 					<li key={collection.key}>
 						<p className="collectionName">{collection.name}</p>
@@ -91,14 +99,37 @@ function App() {
 					</li>
 				))}
 			</ul>
-			<div>
-				<button type="button" onClick={onDownload}>
+			<p
+			  style={{
+					display: collections.length !== 0 ? "none" : "block",
+					textAlign: "center",
+					fontSize: "14px",
+					color: "#374151",
+					marginTop: "64px"
+				}}
+			>
+				nothing collections
+			</p>
+			<div
+			  style={{
+					width: "100%",
+					position: "fixed",
+					bottom: 0,
+					left: 0,
+					padding: "16px",
+					backgroundColor: "#fff",
+					zIndex: 999
+				}}
+			>
+				<button type="button" onClick={onDownload} style={{
+					backgroundColor: collections.length !== 0 ? "rgb(16, 162, 229)" : "rgba(16, 162, 229, 0.5)",
+				}}>
 					Export to JSON
 				</button>
 			</div>
 			<a
 				download={true}
-				href="export.json"
+				href="tokens.json"
 				id="downLoadLink"
 				style={{ display: "none" }}
 			>

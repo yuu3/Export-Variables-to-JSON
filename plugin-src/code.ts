@@ -5,7 +5,6 @@ const VARIABLE_ALIAS = "VARIABLE_ALIAS"
 
 const _findAiliasVariables = async (mode: Mode, collectionModes: Mode[], variable: VariableAlias) => {
 	let variableId = variable.id
-	let modeCount = 0
 	let value: any = ""
 	let next = false
 
@@ -73,6 +72,18 @@ const _getVariablesByMode = async (
 figma.showUI(__html__, {
 	height: 400
 })
+
+export const getCollections = async () => {
+	const variableCollections =
+		await figma.variables.getLocalVariableCollections()
+
+	return variableCollections.map((variableCollection) => {
+		return {
+			name: variableCollection.name,
+			key: variableCollection.key
+		}
+	})
+}
 
 figma.on("run", async () => {
 	const variableCollections =

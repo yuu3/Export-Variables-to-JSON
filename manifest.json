@@ -1,6 +1,7 @@
 {
   "name": "Export Variables to JSON",
   "id": "",
+  "documentAccess": "none",
   "api": "1.0.0",
   "editorType": [
     "figma",

@@ -12,6 +12,7 @@ ul {
 li {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .main {
@@ -28,9 +29,9 @@ button {
   width: 100%;
   padding: 12px 16px;
   border: none;
-  background-color: #0ea5e9;
+  background-color: rgb(16, 162, 229);
   color: #fff;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
@@ -46,7 +47,7 @@ select {
   width: 100%;
   max-width: 200px;
   display: block;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 600;
   overflow: hidden;
   white-space: nowrap;
