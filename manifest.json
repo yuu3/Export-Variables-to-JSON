@@ -4,8 +4,7 @@
   "documentAccess": "none",
   "api": "1.0.0",
   "editorType": [
-    "figma",
-    "figjam"
+    "figma"
   ],
   "permissions": [],
   "main": "dist/code.js",

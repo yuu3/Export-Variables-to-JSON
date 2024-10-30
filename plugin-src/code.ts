@@ -70,31 +70,29 @@ const _getVariablesByMode = async (
 }
 
 figma.showUI(__html__, {
-	height: 400
+	height: 440
 })
 
-export const getCollections = async () => {
-	const variableCollections =
-		await figma.variables.getLocalVariableCollections()
-
-	return variableCollections.map((variableCollection) => {
-		return {
-			name: variableCollection.name,
-			key: variableCollection.key
-		}
-	})
-}
-
 figma.on("run", async () => {
-	const variableCollections =
-		await figma.variables.getLocalVariableCollections()
+	const collections = await figma.variables.getLocalVariableCollections()
+	const variables = await figma.variables.getLocalVariables()
 
 	figma.ui.postMessage({
 		type: "getVariableCollections",
-		data: variableCollections.map((variableCollection) => {
+		data: collections.map((collection) => {
+			const _variables = variables.filter(v => v.variableCollectionId === collection.id)
+			const count = _variables.length
+			const types = Array.from(new Set(_variables.map(v => v.resolvedType)))
+			const typeCount = (typeName: string) => _variables.filter(v => v.resolvedType === typeName).length
+
 			return {
-				name: variableCollection.name,
-				key: variableCollection.key
+				name: collection.name,
+				key: collection.key,
+				count,
+				types: types.map((type) => ({
+					name: type,
+					count: typeCount(type)
+				}))
 			}
 		})
 	})
@@ -130,8 +128,8 @@ figma.ui.onmessage = async (props) => {
 		}
 	}
 
-	collectionVariablesByMode.map((collection) => {
-		const unitCollection = props.collections.find((c: any) => c.key === collection.key)
+	collectionVariablesByMode.filter(c => props._collections.find((_c: any) => _c.key === c.key)).map((collection) => {
+		const unitCollection = props._collections.find((c: any) => c.key === collection.key)
 
 		content[collection.collectionName] = arrayToNestedObject(
 			collection.variables,
