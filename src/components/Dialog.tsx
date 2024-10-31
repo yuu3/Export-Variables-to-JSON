@@ -13,6 +13,17 @@ const Trigger = React.forwardRef<
 	</DialogPrimitive.Trigger>
 ))
 
+const Title = React.forwardRef<
+  React.ElementRef<typeof DialogPrimitive.Title>,
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
+>((props, ref) => (
+  <DialogPrimitive.Title
+    ref={ref}
+    className="flex-grow text-base text-gray-900 text-ellipsis overflow-hidden break-normal whitespace-pre-wrap"
+    {...props}
+  />
+))
+
 const Content = React.forwardRef<
 	React.ElementRef<typeof DialogPrimitive.Content>,
 	React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
@@ -31,4 +42,4 @@ const Content = React.forwardRef<
 	)
 })
 
-export { Root, Trigger, Portal, Content }
+export { Root, Trigger, Title, Portal, Content }

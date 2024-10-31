@@ -28,7 +28,7 @@ type Props = {
 	/**
 	 * ボタンのサイズ
 	 */
-	size?: "xs" | "sm" | "md"
+	size?: "xs" | "sm"
 	/**
 	 * ボタンがクリックされたときのコールバック関数
 	 */
@@ -68,6 +68,11 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
 
 			return textStyle
 		}
+    const sizeStyle = () => {
+      if (size === "sm") return "p-3"
+
+      return "p-2"
+    }
 
 		const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 			onClick?.(event)
@@ -88,7 +93,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
 				onClick={handleClick}
 				onKeyDown={enterkeyDown}
 				ref={ref}
-				className={`${style()} text-xs leading-none flex items-center justify-center gap-x-1 rounded p-3 border focus:outline-2 focus:outline-blue-500 focus:outline-offset-4`}
+				className={`${style()} ${sizeStyle()} text-xs leading-none flex items-center justify-center gap-x-1 rounded border focus:outline-2 focus:outline-blue-500 focus:outline-offset-4`}
 				{...props}
 			>
 				{icon && <span>{icon}</span>}

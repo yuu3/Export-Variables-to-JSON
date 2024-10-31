@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react"
+import { Collections } from "./components/Collections"
 import { Collection } from "./components/Collection"
 import { Button } from "./components/Button"
 import "./output.css"
 
 function App() {
 	const [collections, setCollections] = useState<any[]>([])
+	const [isOpen, setIsOpen] = useState(false)
+	const [selectedCollection, setSelectedCollection] = useState<any>(null)
 
 	useEffect(() => {
 		onmessage = (event) => {
@@ -45,46 +48,58 @@ function App() {
 
 		parent.postMessage({ pluginMessage: { type: "exportVariables", _collections } }, "*")
 	}
-	const onChangeUnit = (value: string, collectionId: string) => {
-		const _collection = collections.find(c => c.key === collectionId)
-		const otherCollections = collections.filter(c => c.key !== collectionId)
+	const onChangeUnit = (value: string) => {
+		setSelectedCollection({
+			...selectedCollection,
+			unit: value
+		})
+	}
+	const onChangeIsInclude = (value: boolean) => {
+		setSelectedCollection({
+			...selectedCollection,
+			isInclude: value
+		})
+	}
+	const changeCollection = (collectionId: string) => {
+		const collection = collections.find(c => c.key === collectionId)
 
-		if (_collection) {
-			setCollections([
-				...otherCollections,
-				{
-					..._collection,
-					unit: value
-				}
-			])
+		if (collection) {
+			setSelectedCollection(collection)
+			setIsOpen(true)
 		}
 	}
-	const onChangeIsInclude = (value: boolean, collectionId: string) => {
-		const _collection = collections.find(c => c.key === collectionId)
-		const otherCollections = collections.filter(c => c.key !== collectionId)
 
-		if (_collection) {
-			setCollections([
-				...otherCollections,
-				{
-					..._collection,
-					isInclude: value
-				}
-			])
-		}
+	const close = () => {
+		setIsOpen(false)
+		setSelectedCollection(null)
+	}
+	const save = () => {
+		const otherCollections = collections.filter(c => c.key !== selectedCollection.key)
+
+		setCollections([
+			...otherCollections,
+			selectedCollection
+		])
+		setIsOpen(false)
 	}
 
 	return (
 		<main className="grid gap-y-4 p-4">
-			<ul className="grid gap-y-4">
-				{collections.sort((v, p) => v.name.toUpperCase() > p.name.toUpperCase() ? 1 : -1).map((collection) => (
-					<Collection
-						collection={collection}
-						onChangeUnit={onChangeUnit}
-						onChangeIsInclude={onChangeIsInclude}
-					/>
-				))}
-			</ul>
+			<h1 className="text-base text-gray-900">Collections</h1>
+			<Collections
+			  collections={collections}
+				onClick={changeCollection}
+			/>
+			{selectedCollection && (
+				<Collection
+					collection={selectedCollection}
+					open={isOpen}
+					close={close}
+					save={save}
+					onChangeUnit={onChangeUnit}
+					onChangeIsInclude={onChangeIsInclude}
+				/>
+			)}
 			{collections.length === 0 && (
 				<p className="text-sm">
 					nothing collections
@@ -95,6 +110,7 @@ function App() {
 					name="download"
 					text="Export to JSON"
 					variant="primary"
+					size="sm"
 					onClick={() => onDownload()}
 					onEnterkeyDown={() => onDownload()}
 				/>
