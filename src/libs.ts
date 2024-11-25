@@ -56,3 +56,23 @@ export const arrayToNestedObject = (args: CollectionVariableValue, unit: string)
 
 	return result
 }
+
+export const download = (data: any, fileName: string) => {
+  const blob = new Blob(
+    [JSON.stringify(data, null, "  ")],
+    { type: "application/json" }
+  )
+  const url = URL.createObjectURL(blob)
+  const downLoadLink = document.getElementById(
+    "downLoadLink"
+  ) as HTMLAnchorElement
+
+  downLoadLink.download = fileName
+  downLoadLink.href = url
+  downLoadLink.dataset.downloadurl = [
+    "text/plain",
+    downLoadLink.download,
+    downLoadLink.href
+  ].join(":")
+  downLoadLink.click()
+}

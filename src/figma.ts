@@ -1,5 +1,20 @@
-import { arrayToNestedObject } from "./lib"
-import type { Mode } from "./types"
+import { arrayToNestedObject } from "./libs"
+import type {
+	Mode,
+	Collection as TypeCollection,
+	CollectionOptions
+} from "./types"
+
+export type TextLocalStyle = TextStyle
+export type PaintLocalStyle = PaintStyle
+export type EffectLocalStyle = EffectStyle
+export type GridLocalStyle = GridStyle
+export type Styles = {
+	text: TextStyle[]
+	fill: PaintStyle[]
+	effect: EffectStyle[]
+	grid: GridStyle[]
+}
 
 const VARIABLE_ALIAS = "VARIABLE_ALIAS"
 
@@ -70,12 +85,19 @@ const _getVariablesByMode = async (
 }
 
 figma.showUI(__html__, {
-	height: 440
+	width: 520,
+	height: 520
 })
 
 figma.on("run", async () => {
 	const collections = await figma.variables.getLocalVariableCollections()
 	const variables = await figma.variables.getLocalVariables()
+	const styles: Styles = {
+		text: figma.getLocalTextStyles(),
+		fill: figma.getLocalPaintStyles(),
+		effect: figma.getLocalEffectStyles(),
+		grid: figma.getLocalGridStyles()
+	}
 
 	figma.ui.postMessage({
 		type: "getVariableCollections",
@@ -92,16 +114,64 @@ figma.on("run", async () => {
 				types: types.map((type) => ({
 					name: type,
 					count: typeCount(type)
-				}))
+				})),
+				unit: "",
+				nameSpace: "color",
+				isInclude: true
 			}
 		})
 	})
+
+	figma.ui.postMessage({
+		type: "getLocalStyles",
+		data: {
+			text: styles.text.map(style => ({
+				id: style.id,
+				name: style.name,
+				description: style.description,
+				fontName: style.fontName,
+				fontSize: style.fontSize,
+				letterSpacing: style.letterSpacing,
+				lineHeight: style.lineHeight,
+			})),
+			fill: styles.fill.map(style => ({
+				id: style.id,
+				name: style.name,
+				paints: style.paints.map(paint => ({
+					blendMode: paint.blendMode,
+					visible: paint.visible,
+					type: paint.type,
+					opacity: paint.opacity
+				}))
+			})),
+			effect: styles.effect.map(style => ({
+				id: style.id,
+				name: style.name,
+				effects: style.effects.map(effect => ({
+					blendMode: effect.radius,
+					radius: effect.radius,
+					type: effect.type
+				}))
+			})),
+			grid: styles.grid.map(style => ({
+				id: style.id,
+				name: style.name,
+				layoutGrids: style.layoutGrids.map(grid => ({
+					pattern: grid.pattern,
+					sectionSize: grid.sectionSize,
+					visible: grid.visible,
+					color: grid.color
+				}))
+			}))
+		}
+	})
 })
 
-figma.ui.onmessage = async (props) => {
-	const content: {
-		[key: string]: any
-	} = {}
+figma.ui.onmessage = async (props: {
+	collections: TypeCollection[]
+	collectionOptions: CollectionOptions
+}) => {
+	const content: { [key: string]: any } = {}
 	const collections = await figma.variables.getLocalVariableCollections()
 	const collectionVariables = await figma.variables.getLocalVariables()
 	const collectionModes = collections.map((collection) => collection.modes).flat()
@@ -128,8 +198,10 @@ figma.ui.onmessage = async (props) => {
 		}
 	}
 
-	collectionVariablesByMode.filter(c => props._collections.find((_c: any) => _c.key === c.key)).map((collection) => {
-		const unitCollection = props._collections.find((c: any) => c.key === collection.key)
+	const filterdCollections = props.collections.filter(c => c.isInclude)
+
+	collectionVariablesByMode.filter(c => filterdCollections.find((_c: any) => _c.key === c.key)).map((collection) => {
+		const unitCollection = filterdCollections.find((c: any) => c.key === collection.key)
 
 		content[collection.collectionName] = arrayToNestedObject(
 			collection.variables,

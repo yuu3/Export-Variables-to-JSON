@@ -1,50 +1,153 @@
 import { Button } from "./Button"
-import { Blend, Ellipsis, Palette, Type, Hash, ToggleLeft } from "lucide-react"
-import type { Collection as TypeCollection } from "../types"
-import {
-	TYPE_COLOR,
-	TYPE_NUMBER,
-	TYPE_TEXT,
-	TYPE_BOOLEAN
-} from "../constants"
+import { Toggle } from "./Toggle"
+import { Select } from "./Select"
+import { Checkbox } from "./Checkbox"
+import { TYPE_NUMBER } from "../constants"
+import type {
+  Collection as TypeCollection,
+  CollectionOptions
+} from "../types"
 
 type Props = {
   collections: TypeCollection[]
-  onClick: (collectionId: string) => void
+  collectionOptions: CollectionOptions
+  onChangeCollection: (collection: TypeCollection) => void
+  onChangeCollectionOptionType: (type: string) => void
+  onChangeCollectionOptionSeparateFile: (separateFile: boolean) => void
+  onDownload: () => void
 }
 
-const VariablesImage = (types: { name: string; count: number }[]) => {
-  if (types.length !== 1) return <Blend size={16} />
-  if (types[0].name === TYPE_COLOR) return <Palette size={16} />
-  if (types[0].name === TYPE_TEXT) return <Type size={16} />
-  if (types[0].name === TYPE_NUMBER) return <Hash size={16} />
-  if (types[0].name === TYPE_BOOLEAN) return <ToggleLeft size={16} />
-}
+const units = [
+  { value: "", text: "-" },
+  { value: "px", text: "px" },
+  { value: "rem", text: "rem" },
+  { value: "em", text: "em" },
+  { value: "%", text: "%" }
+]
+const nameSpaces = [
+  { value: "color", text: "Color" },
+  { value: "spacing", text: "Spacing" },
+  { value: "radius", text: "Radius" }
+]
+const options = [
+  { value: "JSON", text: "JSON" },
+  { value: "CSS", text: "CSS" },
+  { value: "TailwindCSSv4", text: "TailwindCSS v4 theme" }
+]
 
 export const Collections = (props: Props) => {
   const _collections = [...props.collections]
+  const onChangeUnit = (value: string, collectionId: string) => {
+		const collection = props.collections.find(c => c.key === collectionId)
+
+		if (collection) {
+			collection.unit = value
+      props.onChangeCollection(collection)
+		}
+	}
+	const onChangeIsInclude = (value: boolean, collectionId: string) => {
+		const collection = props.collections.find(c => c.key === collectionId)
+
+		if (collection) {
+			collection.isInclude = value
+      props.onChangeCollection(collection)
+		}
+	}
+  const onChangeNameSpace = (value: string, collectionId: string) => {
+    const collection = props.collections.find(c => c.key === collectionId)
+
+    if (collection) {
+      collection.nameSpace = value as any
+      props.onChangeCollection(collection)
+    }
+  }
 
   return (
-    <ul className="grid gap-y-4">
-      {_collections.sort((v, p) => v.name.toUpperCase() > p.name.toUpperCase() ? 1 : -1).map((collection) => (
-        <li className="flex items-center justify-between">
-          <div className={`flex items-center gap-x-4 ${collection.isInclude ? "text-gray-700" : "text-gray-400"}`}>
-            <div className="p-2 border border-gray-300 rounded">{VariablesImage(collection.types)}</div>
-            <div className="grid gap-y-1 text-xs">
-              <p className="text-ellipsis overflow-hidden break-normal whitespace-nowrap">{collection.name}</p>
-              <p>{collection.count} Variables</p>
-            </div>
+    <div className="grid gap-y-4">
+      <div className="grid gap-y-2">
+        <h2 className="text-sm font-semibold text-gray-700">Local Variables</h2>
+        <div className="border border-gray-200 rounded px-4 py-1">
+          <div className="flex gap-x-2 py-1 border-b border-gray-200">
+            <p className="w-36 text-gray-500 text-xs">Name</p>
+            <p className="w-20 text-gray-500 text-xs">Total</p>
+            <p className="w-14 text-gray-500 text-xs">Unit</p>
+            <p className="w-20 text-gray-500 text-xs">NameSpace</p>
           </div>
-          <Button
-            name="edit"
-            text=""
-            variant="text"
-            icon={<Ellipsis strokeWidth={1.2} size={16} className="text-black" />}
-            onClick={() => props.onClick(collection.key)}
-            onEnterkeyDown={() => props.onClick(collection.key)}
-          />
-        </li>
-      ))}
-    </ul>
+          <ul>
+            {_collections.sort((v, p) => v.name.toUpperCase() > p.name.toUpperCase() ? 1 : -1).map((collection) => (
+              <li className="flex items-center gap-x-2 py-2 border-b border-gray-200 last:border-b-0">
+                <p className={`${collection.isInclude ? 'text-gray-700' : 'text-gray-400'} w-36 text-xs text-ellipsis overflow-hidden break-normal whitespace-nowrap`}>{collection.name}</p>
+                <p className={`${collection.isInclude ? 'text-gray-700' : 'text-gray-400'} w-20 text-xs text-ellipsis overflow-hidden break-normal whitespace-nowrap`}>{collection.count} Variables</p>
+                <Select
+                  id={`${collection.key}-unit`}
+                  name={`${collection.key}-unit`}
+                  value={collection.unit}
+                  options={units}
+                  disabled={!collection.isInclude || !collection.types.some(type => type.name === TYPE_NUMBER)}
+                  onChangeValue={(value) => onChangeUnit(value, collection.key)}
+                />
+                <Select
+                  id={`${collection.key}-nameSpace`}
+                  name={`${collection.key}-nameSpace`}
+                  value={collection.nameSpace}
+                  options={nameSpaces}
+                  disabled={!collection.isInclude || props.collectionOptions.type !== "TailwindCSSv4"}
+                  onChangeValue={(value) => onChangeNameSpace(value, collection.key)}
+                />
+                <div className="ml-auto">
+                  <Toggle
+                    name={`${collection.key}-include`}
+                    checked={collection.isInclude}
+                    onChange={value => onChangeIsInclude(value, collection.key)}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      <div className="grid gap-y-2">
+        <h2 className="text-sm font-semibold text-gray-700">Options</h2>
+        <div className="grid border border-gray-200 rounded px-4 py-1">
+          <div className="flex items-center justify-between gap-x-2 py-2 border-b border-gray-200">
+            <p className="text-gray-700 text-xs">Export Type</p>
+            <Select
+              id="type"
+              name="type"
+              value={props.collectionOptions.type}
+              options={options}
+              onChangeValue={(value) => props.onChangeCollectionOptionType(value)}
+            />
+          </div>
+          <div className="flex items-center justify-between gap-x-2 py-2">
+            <p className="text-gray-700 text-xs">Separate files by collection</p>
+            <Checkbox
+              name="separate"
+              text=""
+              checked={props.collectionOptions.separateFile}
+              onChange={(value) => props.onChangeCollectionOptionSeparateFile(value)}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="flex justify-end">
+        <Button
+          name="download"
+          text="Export to JSON"
+          variant="primary"
+          size="sm"
+          onClick={() => props.onDownload()}
+          onEnterkeyDown={() => props.onDownload()}
+        />
+      </div>
+      <a
+				download={true}
+				href="tokens.json"
+				id="downLoadLink"
+				className="hidden"
+			>
+				download
+			</a>
+    </div>
   )
 }

@@ -81,7 +81,7 @@ export const Select = ({
 				value={value}
 				name={name}
 				disabled={disabled}
-				className={`${style()} inline-flex w-auto h-8 appearance-none items-center gap-x-4 rounded border pr-6 pl-2 text-xs focus:outline-2 focus:outline-blue-500 focus:outline-offset-4`}
+				className={`${style()} inline-flex w-full h-8 appearance-none items-center gap-x-4 rounded border pr-6 pl-2 text-xs focus:outline-2 focus:outline-blue-500 focus:outline-offset-4`}
 				aria-label={ariaLabel ? ariaLabel : "Select"}
 				onChange={(event) => onChangeValue(event.target.value)}
 			>
