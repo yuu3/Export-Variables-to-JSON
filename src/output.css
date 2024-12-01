@@ -699,6 +699,18 @@ video {
   height: min-content;
 }
 
+.h-20 {
+  height: 5rem;
+}
+
+.h-10 {
+  height: 2.5rem;
+}
+
+.h-12 {
+  height: 3rem;
+}
+
 .w-8 {
   width: 2rem;
 }

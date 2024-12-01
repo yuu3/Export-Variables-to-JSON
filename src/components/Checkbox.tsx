@@ -21,7 +21,7 @@ export const Checkbox = (props: Props) => {
 			<div className={`grid place-items-center rounded border-2 border-teal-500 ${props.checked ? "bg-teal-500" : ""} size-5`}>
 				<Check size={14} strokeWidth={4} className="text-white" />
 			</div>
-			<p className="text-label-xs">{props.text}</p>
+			{props.text && (<p className="text-label-xs">{props.text}</p>)}
 		</label>
 	)
 }

@@ -31,7 +31,6 @@ const nameSpaces = [
 ]
 const options = [
   { value: "JSON", text: "JSON" },
-  { value: "CSS", text: "CSS" },
   { value: "TailwindCSSv4", text: "TailwindCSS v4 theme" }
 ]
 
@@ -67,11 +66,11 @@ export const Collections = (props: Props) => {
       <div className="grid gap-y-2">
         <h2 className="text-sm font-semibold text-gray-700">Local Variables</h2>
         <div className="border border-gray-200 rounded px-4 py-1">
-          <div className="flex gap-x-2 py-1 border-b border-gray-200">
-            <p className="w-36 text-gray-500 text-xs">Name</p>
-            <p className="w-20 text-gray-500 text-xs">Total</p>
-            <p className="w-14 text-gray-500 text-xs">Unit</p>
-            <p className="w-20 text-gray-500 text-xs">NameSpace</p>
+          <div className="flex gap-x-2 py-1 border-b border-gray-200 text-xs">
+            <p className="w-36 text-gray-700">Name</p>
+            <p className="w-20 text-gray-700">Total</p>
+            <p className="w-14 text-gray-700">Unit</p>
+            <p className="w-20 text-gray-700">NameSpace</p>
           </div>
           <ul>
             {_collections.sort((v, p) => v.name.toUpperCase() > p.name.toUpperCase() ? 1 : -1).map((collection) => (
@@ -119,7 +118,7 @@ export const Collections = (props: Props) => {
               onChangeValue={(value) => props.onChangeCollectionOptionType(value)}
             />
           </div>
-          <div className="flex items-center justify-between gap-x-2 py-2">
+          <div className="h-12 flex items-center justify-between gap-x-2 py-2">
             <p className="text-gray-700 text-xs">Separate files by collection</p>
             <Checkbox
               name="separate"
@@ -133,7 +132,7 @@ export const Collections = (props: Props) => {
       <div className="flex justify-end">
         <Button
           name="download"
-          text="Export to JSON"
+          text="Export"
           variant="primary"
           size="sm"
           onClick={() => props.onDownload()}

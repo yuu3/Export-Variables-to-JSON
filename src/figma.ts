@@ -1,4 +1,7 @@
-import { arrayToNestedObject } from "./libs"
+import {
+	arrayToNestedObject,
+	convertToCSS
+} from "./libs"
 import type {
 	Mode,
 	Collection as TypeCollection,
@@ -200,17 +203,70 @@ figma.ui.onmessage = async (props: {
 
 	const filterdCollections = props.collections.filter(c => c.isInclude)
 
-	collectionVariablesByMode.filter(c => filterdCollections.find((_c: any) => _c.key === c.key)).map((collection) => {
-		const unitCollection = filterdCollections.find((c: any) => c.key === collection.key)
+	if (props.collectionOptions.type === "JSON") {
+		collectionVariablesByMode.filter(c => filterdCollections.find((_c: any) => _c.key === c.key)).map((collection) => {
+			const unitCollection = filterdCollections.find((c: any) => c.key === collection.key)
 
-		content[collection.collectionName] = arrayToNestedObject(
-			collection.variables,
-			unitCollection ? unitCollection.unit : ""
-		)
-	})
+			content[collection.collectionName] = arrayToNestedObject(
+				collection.variables,
+				unitCollection ? unitCollection.unit : ""
+			)
+		})
 
-	figma.ui.postMessage({
-		type: "downloadJSON",
-		data: content
-	})
+		if (props.collectionOptions.separateFile) {
+			const d = Object.entries(content).map(([key, value]) => {
+				return {
+					collectionName: key.replaceAll("/", "-"),
+					data: JSON.stringify(value, null, 2)
+				}
+			})
+
+			figma.ui.postMessage({
+				type: "downloadJSONMultiple",
+				data: d
+			})
+		} else {
+			figma.ui.postMessage({
+				type: "downloadJSON",
+				data: content
+			})
+		}
+  }
+
+	if (props.collectionOptions.type === "TailwindCSSv4") {
+		const tailwindCSSv4 = collectionVariablesByMode.filter(c => filterdCollections.find((_c: any) => _c.key === c.key)).map((collection) => {
+			const unitCollection = filterdCollections.find((c: any) => c.key === collection.key)
+
+			return {
+				collectionName: collection.collectionName,
+				data: convertToCSS(
+					collection.variables,
+					unitCollection ? unitCollection.nameSpace : "color",
+					unitCollection ? unitCollection.unit : ""
+			  )
+			}
+		})
+
+		if (props.collectionOptions.separateFile) {
+			const d = tailwindCSSv4.map(v => v.data)
+			const c = d.join("\n")
+			const data = tailwindCSSv4.map(v => {
+				return {
+					collectionName: v.collectionName.replaceAll("/", "-"),
+					data: `@theme {\n${c}\n}`
+				}
+			})
+
+			figma.ui.postMessage({
+				type: "downloadTailwindCSSv4Multiple",
+				data
+			})
+		} else {
+			const _d = tailwindCSSv4.map(v => v.data)
+			figma.ui.postMessage({
+				type: "downloadTailwindCSSv4",
+				data: `@theme {\n${_d.join("\n")}\n}`
+			})
+		}
+	}
 }

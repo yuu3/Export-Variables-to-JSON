@@ -7,7 +7,7 @@
     "figma"
   ],
   "permissions": [],
-  "main": "dist/code.js",
+  "main": "dist/figma.js",
   "ui": "dist/index.html",
   "networkAccess": {
     "allowedDomains": [
